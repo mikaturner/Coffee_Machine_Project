@@ -37,7 +37,7 @@ user_input = (input("What would you like? (espresso/latte/cappuccino):").lower()
 
 def resource_check(order):
     enough_resources = []
-    resources_left = {"water":[], "milk":[], "coffee":[]}
+    resources_left = {"water": [], "milk": [], "coffee": []}
     for ingredient in MENU[order]["ingredients"]:
         drink_ingredient = (MENU[order]["ingredients"][ingredient])
         resources_ingredient = resources[ingredient]
@@ -45,19 +45,29 @@ def resource_check(order):
             print(f"Sorry there is not enough {ingredient} to make your {user_input}")
             enough_resources.append("no")
         else:
-            resources_left[ingredient].append(resources_ingredient-drink_ingredient)
+            resources_left[ingredient].append(resources_ingredient - drink_ingredient)
+            resources_left["money"] = 0
     return enough_resources.count("no"), resources_left
 
 
 # if user enters a coffee drink (espresso, latte, cappuccino)
 if user_input in MENU.keys():
     make_drink, updated_resources = resource_check(user_input)
-    if make_drink == 0: # This value is zero if there are sufficient ingredients
+    # Value of make_drink is zero if there are sufficient ingredients
+    if make_drink == 0:
         resources = updated_resources
+        wallet = {"quarters": 0, "dimes": 0, "nickels": 0, "pennies": 0}
+        cost = MENU[user_input]['cost']
+        print(f"The cost for a {user_input} is ${cost}0. Please insert coins:")
+        for coins in wallet:
+            wallet.update({coins: int(input(f"How many {coins}?"))})
+            print(wallet)
 
+        total = (wallet["quarters"] * 0.25) + (wallet["dimes"] * 0.10) + (wallet["nickels"] * 0.05) + (wallet["pennies"] * 0.01)
 
-
-
-
-
-
+        if total >= cost:
+            print(f"Here's your {user_input}.  Your change is ${round(total-cost, 2)}")
+            resources["money"] = resources["money"] + cost
+            print(resources["money"])
+        else:
+            print(f"Sorry ${total}0 is insufficient.  Refunding ${total}0")
